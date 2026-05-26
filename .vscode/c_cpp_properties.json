@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+				"xypiduino/include",
+                "C:/Program Files (x86)/boost/include/boost-1_74",
+                "C:/Program Files (x86)/oscpp/include",
+                "C:/Program Files (x86)/nlohmann_json/include",
+                "C:/Program Files (x86)/spdlog/include",
+                "C:/Program Files (x86)/RtMidi/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.17763.0",
+            "compilerPath": "cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64"
+        }
+    ],
+    "version": 4
+}
