@@ -15,6 +15,7 @@
 using spdlog::info;
 using spdlog::debug;
 
+
 /*!
  * \class BloopiHub
  * main wrapper for various service handlers: MIDI, hardware, OSC, and a web socket for control commands.
@@ -43,7 +44,7 @@ BloopiHub::BloopiHub(std::string dst_osc_adr, uint16_t dst_osc_prt, uint16_t rcv
 	wsServer = std::make_unique<WSServer>(ioService, ws_endpoint, wsapiHandler);
 	wsapiWorker = std::make_unique<WSApiWorker>(cmdQ, wsapi::results_t());
 #endif
-	midiWorker = std::make_unique<MidiWorker>(spiInQ, oscInQ, midiOutQ);
+	midiWorker = std::make_unique<MidiWorker>(gpioInQ, oscInQ, midiOutQ);
 }
 
 BloopiHub::~BloopiHub() = default;
@@ -54,7 +55,7 @@ BloopiHub::~BloopiHub() = default;
  */
 void BloopiHub::run()
 {
-	spiInQ.disableWait();
+	gpioInQ.disableWait();
 	oscInQ.enableWait();
 #ifdef HAS_WS
 	cmdQ.enableWait();

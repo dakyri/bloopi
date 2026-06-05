@@ -51,7 +51,7 @@ private:
 #endif
 	std::unique_ptr<MidiWorker> midiWorker;
 
-	msg::q_t hwInQ; //!< local hardware inputs I2C and UART
+	msg::q_t gpioInQ; //!< local hardware inputs I2C and UART
 	msg::q_t oscInQ; //!< OSC input Q. TODO: we might not have osc enabled for a while but we'll keep it around
 	msg::q_t midiOutQ; //!< out q for midi worker
 #ifdef HAS_WS

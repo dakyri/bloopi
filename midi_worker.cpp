@@ -12,17 +12,24 @@ using spdlog::error;
 using spdlog::debug;
 using spdlog::warn;
 
-
-MidiWorker::MidiWorker(msg::q_t &_hwInQ, msg::q_t &_oscInQ, msg::q_t &_midiInQ)
-	: hwInQ(_hwInQ), oscInQ(_oscInQ), midiOutQ(_midiInQ)
+/*!
+ * main midi worker for system/hardware/virtual midi ports.
+ * TODO: mayabe gpio midi can be quickly wrangled into a system port on the pi (via ttymidi),
+ * or possibly handle it in the gpio handler
+ * queues are shared structures allowing operation between other subsystems.
+ *  'midiOutQ' is added to by hardware and osc workers, and sends MIDI messages to their registered destination, typically jack connections.
+ *  'hwInQ'and 'oscInQ' are added to by MIDI messages received here and are for the device hardware and OSC subsystem
+ */
+MidiWorker::MidiWorker(msg::q_t &_hwInQ, msg::q_t &_oscInQ, msg::q_t &_midiOutQ)
+	: hwInQ(_hwInQ), oscInQ(_oscInQ), midiOutQ(_midiOutQ)
 {
  	try {
- 		midiIn = std::make_unique<RtMidiIn>(RtMidi::Api::UNSPECIFIED, "xypi midi in");
+ 		midiIn = std::make_unique<RtMidiIn>(RtMidi::Api::UNSPECIFIED, "bloopi midi in");
 	} catch ( RtMidiError &e ) {
 		error(e.getMessage());
 	}
  	try {
-		midiOut = std::make_unique<RtMidiOut>(RtMidi::Api::UNSPECIFIED, "xypi midi out");
+		midiOut = std::make_unique<RtMidiOut>(RtMidi::Api::UNSPECIFIED, "bloopi midi out");
 	} catch ( RtMidiError &e ) {
 		error(e.getMessage());
 	}
@@ -89,7 +96,9 @@ void MidiWorker::openPorts()
 						omdi.val2 = imsg->at(2);
 					}
 				}
+#ifdef HAS_OSC
 				worker->oscInQ.push(omsgp);
+#endif
 				worker->hwInQ.push(omsgp);
 			} else { // for the moment assume this is just not going to happen except for sysx
 				warn("unexpected midi length for {}: {}", imsg->at(0), imsg->size());
@@ -97,16 +106,16 @@ void MidiWorker::openPorts()
 		}, this);
 		midiIn->ignoreTypes(false, false, false);
 		if (hvp) {
-			midiIn->openPort(0, "Xypi midi in");
+			midiIn->openPort(0, "Bloopi midi in");
 		} else {
-			midiIn->openVirtualPort("Xypi midi in");
+			midiIn->openVirtualPort("Bloopi midi in");
 		}
 	}
 	if (midiOutPorts.size() > 0) {
 		if (hvp) {
-			midiOut->openPort(0, "Xypi midi out");
+			midiOut->openPort(0, "Bloopi midi out");
 		} else {
-			midiOut->openVirtualPort("Xypi midi out");
+			midiOut->openVirtualPort("Bloopi midi out");
 		}
 	}
 }
@@ -119,13 +128,13 @@ bool MidiWorker::hasVirtualPorts()
 }
 
 /*!
- * launch the OSCWorker and return immediately. we check that the dongle is open here, and if we have enough permission,
+ * launch the MIDIWorker and return immediately. we check that the dongle is open here, and if we have enough permission,
  * we list whatever files we find.
  */
 void MidiWorker::run()
 {
 	if (!isRunning.exchange(true)) {
-		debug("OSCWorker::run() launching main thread");
+		debug("MidiWorker::run() launching main thread");
 		myThread = std::thread([this]() { runner(); });
 	}
 }
@@ -210,7 +219,7 @@ void MidiWorker::runner()
 				if (msg->type == msg::typ::midi) {
 					const auto &mmsg = std::reinterpret_pointer_cast<msg::MidiMsg>(msg)->midi;
 					sendMIDI(mmsg);
-				} else if (msg->type == msg::typ::midi) {
+				} else if (msg->type == msg::typ::midi_list) {
 					const auto &mlmsg = std::reinterpret_pointer_cast<msg::MidiListMsg>(msg)->midi;
 					for (const auto &m: mlmsg) {
 						sendMIDI(m);

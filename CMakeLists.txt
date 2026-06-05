@@ -20,7 +20,7 @@ find_path(HAS_WIRING_PI "wiringPiSPI.h")
 include_directories(include)
 
 if (HAS_WIRING_PI)
-	set(EXTRA_SOURCES "pi_spi.cpp")
+	set(EXTRA_SOURCES "bloo_gpio.cpp")
 endif()
 
 add_executable(${PROJECT_NAME}
@@ -58,8 +58,7 @@ if (WIN32)
 	add_definitions(-D_WIN32_WINNT=0x0A00 -DFMT_UNICODE=0) # 0x0A00 = win 10
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 endif()
-target_include_directories(${PROJECT_NAME}
-	PUBLIC "xypiduino/include")
+#target_include_directories(${PROJECT_NAME} PUBLIC "xypiduino/include")
 
 option(SINGLE_THREADED_IO "Build single threaded server" OFF)
 if (SINGLE_THREADED_IO)

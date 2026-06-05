@@ -12,7 +12,7 @@ inline bool isCmdByte(uint8_t _byte) { return (_byte & 0x80) != 0; }
 inline uint8_t getCCCmd(uint8_t _byte) { return (_byte & 0xf0); }
 inline uint8_t getCCChan(uint8_t _byte) { return (_byte & 0x0f); }
 
-enum class cmd : uint8_t {
+enum cmd : uint8_t {
 	nul			= 0x00,
 	noteOff		= 0x80,
 	noteOn		= 0x90,
