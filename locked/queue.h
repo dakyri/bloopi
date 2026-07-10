@@ -81,7 +81,7 @@ public:
 	std::pair<T, bool> front(const std::chrono::duration<long> timeout)
 	{
 		std::unique_lock<std::mutex> conditionLock(mutex);
-		ready.wait_for(conditionLock, timeout, [&]() { return !isBlocking || !queue.empty(); });
+		ready.wait_for(conditionLock, timeout, [&]() { return !isBlocking || !iqueue.empty(); });
 		if (iqueue.empty()) return { T(), false };
 
 		return{ iqueue.front(), true };

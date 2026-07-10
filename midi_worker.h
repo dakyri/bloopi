@@ -6,8 +6,12 @@
 #include <thread>
 #include <memory>
 
+namespace rt {
+namespace midi {
 class RtMidiIn;
 class RtMidiOut;
+}
+}
 
 class MidiWorker
 {
@@ -29,8 +33,8 @@ private:
 	std::atomic<bool> isRunning;
 	std::thread myThread;
 
-	std::unique_ptr<RtMidiIn> midiIn;
-	std::unique_ptr<RtMidiOut> midiOut;
+	std::unique_ptr<rt::midi::RtMidiIn> midiIn;
+	std::unique_ptr<rt::midi::RtMidiOut> midiOut;
 	
 	std::vector<std::string> midiInPorts;
 	std::vector<std::string> midiOutPorts;

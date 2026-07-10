@@ -3,6 +3,7 @@
 #include <thread>
 #include <vector>
 #include <tuple>
+#include <atomic>
 
 #include "message.h"
 #include "hwcfg.h"
@@ -10,7 +11,6 @@
 namespace hw_if {
 
 using mod = config::mode_t;
-using btst8 = button::state_t;
 
 /*!
  * structure representing a button state and possible actions
@@ -133,6 +133,8 @@ struct pedal {
 	uint8_t lastCV;
 	uint8_t lastCV2;
 };
+
+using btst8 = button::state_t;
 
 };
 

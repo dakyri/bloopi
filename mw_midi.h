@@ -89,14 +89,14 @@ enum class midi_ctrl : uint8_t {
 struct msg {
 	msg(uint8_t _cmd=0, uint8_t _val1=0, uint8_t _val2=0, uint8_t _port=0) : cmd(_cmd), val1(_val1), val2(_val2), port(_port) { }
 
-	static inline msg noteon(uint8_t chan, uint8_t note, uint8_t vel) { return { cmd::noteOn | (chan & 0xf), note, vel }; }
-	static inline msg noteon(uint8_t args[3]) { return { cmd::noteOn | (args[0] & 0xf), args[1], args[2] }; }
-	static inline msg noteoff(uint8_t chan, uint8_t note, uint8_t vel) { return { cmd::noteOff | (chan & 0xf), note, vel }; }
-	static inline msg keypress(uint8_t chan, uint8_t note, uint8_t vel) { return { cmd::keyPress | (chan & 0xf), note, vel }; }
-	static inline msg control(uint8_t chan, uint8_t tgt, uint8_t amt) { return { cmd::ctrl | (chan & 0xf), tgt, amt }; }
-	static inline msg prog(uint8_t chan, uint8_t prog) { return { cmd::prog | (chan & 0xf), prog }; }
-	static inline msg chanpress(uint8_t chan, uint8_t press) { return { cmd::chanPress | (chan & 0xf), press }; }
-	static inline msg bend(uint8_t chan, uint16_t bend) { return { cmd::bend | (chan & 0xf), (uint8_t) ((bend >> 7) & 0x7f), (uint8_t) (bend & 0x7f) }; }
+	static inline msg noteon(uint8_t chan, uint8_t note, uint8_t vel) { chan &= 0xf; return { cmd::noteOn | chan, note, vel }; }
+	static inline msg noteon(uint8_t args[3]) { args[0] &= 0xf; return { cmd::noteOn | args[0], args[1], args[2] }; }
+	static inline msg noteoff(uint8_t chan, uint8_t note, uint8_t vel) { chan &= 0xf; return { cmd::noteOff | chan, note, vel }; }
+	static inline msg keypress(uint8_t chan, uint8_t note, uint8_t vel) { chan &= 0xf; return { cmd::keyPress | chan, note, vel }; }
+	static inline msg control(uint8_t chan, uint8_t tgt, uint8_t amt) { chan &= 0xf; return { cmd::ctrl | chan, tgt, amt }; }
+	static inline msg prog(uint8_t chan, uint8_t prog) { chan &= 0xf; return { cmd::prog | chan, prog }; }
+	static inline msg chanpress(uint8_t chan, uint8_t press) { chan &= 0xf; return { cmd::chanPress | chan, press }; }
+	static inline msg bend(uint8_t chan, uint16_t bend) { chan &= 0xf; return { cmd::bend | chan, (uint8_t) ((bend >> 7) & 0x7f), (uint8_t) (bend & 0x7f) }; }
 	static inline msg timecode(uint8_t typ, uint8_t v) { return { (uint8_t)cmd::timeCode, typ, v }; }
 	static inline msg songpos(uint16_t pos) { return { (uint8_t)cmd::songPos, (uint8_t) ((pos >> 7) & 0x7f), (uint8_t) (pos & 0x7f) }; }
 	static inline msg songsel(uint8_t sel) { return { (uint8_t)cmd::songSel, sel }; }

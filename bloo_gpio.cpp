@@ -5,17 +5,23 @@
 
 #include <PCF8574mw.h>
 #include <PCF8591mw.h>
-#include <Pi2c.h>
+#include <pi2c.h>
 
-#include <chrono>
+#ifdef HAS_WIRING_PI
+#include <wiringSerial.h>
+#endif
 
 using midi = mw_midi::cmd;
 using spdlog::error;
 
+#ifndef HAS_WIRING_PI
+
+#include <chrono>
 
 int millis() {
 	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
+#endif
 
 /*!
  * wraps an common anode rgb led on the given bit of an 8574
@@ -54,8 +60,6 @@ protected:
 	unsigned long unblink_ms;
 };
 
-Lamp8574 statusLamp(adcEnable, 4);
-
 constexpr uint8_t buttonStateI2CAdr = 0x38;
 constexpr uint8_t adcEnableI2CAdr = 0x39;
 constexpr uint8_t adcI2CAdr = 0x48;
@@ -67,6 +71,8 @@ constexpr uint8_t pedalChangeMinTime_ms = 50;
 PCF8574<Pi2c> buttonStates(buttonStateI2CAdr);
 PCF8574<Pi2c> adcEnable(adcEnableI2CAdr);
 PCF8591<Pi2c> adc(adcI2CAdr);
+
+Lamp8574 statusLamp(adcEnable, 4);
 
 
 /*
@@ -114,7 +120,7 @@ BlooGPIO::BlooGPIO(msg::q_t& _inQ, msg::q_t& _midiOutQ)
 
 bool BlooGPIO::start() {
 	if (!isRunning.exchange(true)) {
-		hwThread = std::thread(hwRunner, this);
+		hwThread = std::thread([this]() { hwRunner(); });
 	}
 	return isRunning;
 }
@@ -162,7 +168,9 @@ void BlooGPIO::stop()
 			break;
 	}
 	if (cmd) {
+#ifdef XXXX
 		midiOutQ.push(std::make_shared<msg::MidiMsg>(cmd | chan, v1, v2)); // send it also to the viirtual ports
+#endif
 		sendUARTMidi(cmd|chan, v1, v2); // send that to an actual midi device
 		statusLamp.setColor(Lamp8574::red, 100);
 	}
@@ -190,7 +198,9 @@ void BlooGPIO::sendButtonOffMidi(uint8_t typ, uint8_t chan, uint8_t v1) {
 		break;
 	}
 	if (cmd) {
+#ifdef XXXX
 		midiOutQ.push(std::make_shared<msg::MidiMsg>(cmd | chan, v1, v2)); // send it also to the viirtual ports
+#endif
 		sendUARTMidi(cmd|chan, v1, v2); // send that to an actual midi device
 		statusLamp.setColor(Lamp8574::red, 100);
 	}
@@ -500,7 +510,7 @@ void BlooGPIO::hwRunner()
 	
 }
 
-void BlooGPIO::sendUARTMidi(uint8_t cmd, uint8_t v1=0, uint8_t v2=0)
+void BlooGPIO::sendUARTMidi(uint8_t cmd, uint8_t v1, uint8_t v2)
 {
 #ifdef HAS_WIRING_PI
 	serialPutchar(uartFd, cmd);
@@ -567,9 +577,9 @@ std::tuple<bool, uint8_t, uint8_t, uint8_t> BlooGPIO::recvUARTMidi()
 			hasIncompleteCmd = false;
 			return {true, cmd, v1, v2};
 #else
+#endif
 		}
 		break;
-#endif
 
 	case midi::chanPress:
 	case midi::prog:
@@ -579,9 +589,9 @@ std::tuple<bool, uint8_t, uint8_t, uint8_t> BlooGPIO::recvUARTMidi()
 			hasIncompleteCmd = false;
 			return {true, cmd, v1, 0};
 #else
+#endif
 		}
 		break;
-#endif
 
 	case midi::start:
 	case midi::stop:

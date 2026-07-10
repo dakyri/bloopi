@@ -4,6 +4,7 @@
 #include <spdlog/spdlog.h>
 
 #include <chrono>
+#include <algorithm>
 
 using namespace std::chrono_literals;
 
@@ -24,7 +25,8 @@ MidiWorker::MidiWorker(msg::q_t &_hwInQ, msg::q_t &_oscInQ, msg::q_t &_midiOutQ)
 	: hwInQ(_hwInQ), oscInQ(_oscInQ), midiOutQ(_midiOutQ)
 {
  	try {
- 		midiIn = std::make_unique<RtMidiIn>(RtMidi::Api::UNSPECIFIED, "bloopi midi in");
+		//auto a = new rt::midi::RtMidiIn(RtMidi::Api::UNSPECIFIED, "bloopi midi in");
+ 		midiIn = std::make_unique<rt::midi::RtMidiIn>(RtMidi::Api::UNSPECIFIED, "bloopi midi in");
 	} catch ( RtMidiError &e ) {
 		error(e.getMessage());
 	}
