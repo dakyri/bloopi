@@ -60,7 +60,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 if (HAS_WIRING_PI)
-	target_compile_definitions(${PROJECT_NAME} PUBLIC HAS_WIRING_PI)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC HAS_WIRING_PI HAS_SERIAL_MIDI)
 	target_include_directories(${PROJECT_NAME} PUBLIC ${WIRING_PI_INC_PATH})
 	target_link_libraries(${PROJECT_NAME} ${WIRING_PI_LIB})
 endif()

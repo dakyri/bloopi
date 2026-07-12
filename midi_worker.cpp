@@ -25,7 +25,6 @@ MidiWorker::MidiWorker(msg::q_t &_hwInQ, msg::q_t &_oscInQ, msg::q_t &_midiOutQ)
 	: hwInQ(_hwInQ), oscInQ(_oscInQ), midiOutQ(_midiOutQ)
 {
  	try {
-		//auto a = new rt::midi::RtMidiIn(RtMidi::Api::UNSPECIFIED, "bloopi midi in");
  		midiIn = std::make_unique<rt::midi::RtMidiIn>(RtMidi::Api::UNSPECIFIED, "bloopi midi in");
 	} catch ( RtMidiError &e ) {
 		error(e.getMessage());

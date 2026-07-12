@@ -168,9 +168,7 @@ void BlooGPIO::stop()
 			break;
 	}
 	if (cmd) {
-#ifdef XXXX
-		midiOutQ.push(std::make_shared<msg::MidiMsg>(cmd | chan, v1, v2)); // send it also to the viirtual ports
-#endif
+		midiOutQ.push(std::make_shared<msg::MidiMsg>(uint8_t(cmd | chan), v1, v2)); // send it also to the viirtual ports
 		sendUARTMidi(cmd|chan, v1, v2); // send that to an actual midi device
 		statusLamp.setColor(Lamp8574::red, 100);
 	}
@@ -198,9 +196,7 @@ void BlooGPIO::sendButtonOffMidi(uint8_t typ, uint8_t chan, uint8_t v1) {
 		break;
 	}
 	if (cmd) {
-#ifdef XXXX
-		midiOutQ.push(std::make_shared<msg::MidiMsg>(cmd | chan, v1, v2)); // send it also to the viirtual ports
-#endif
+		midiOutQ.push(std::make_shared<msg::MidiMsg>(uint8_t(cmd | chan), v1, v2)); // send it also to the viirtual ports
 		sendUARTMidi(cmd|chan, v1, v2); // send that to an actual midi device
 		statusLamp.setColor(Lamp8574::red, 100);
 	}
@@ -355,7 +351,8 @@ void BlooGPIO::checkPedal(const uint8_t which, const uint8_t cv) {
 void BlooGPIO::hwRunner()
 {
 #if defined(HAS_WIRING_PI) && defined(HAS_SERIAL_MIDI)
-	uartFd = serialOpen("/dev/ttyAMA0", 38400)
+	// we also need to adjust clock multipliers in the pi to bring this down to 32k
+	uartFd = serialOpen("/dev/ttyAMA0", 38400);
 #endif
 	while (isRunning) {
 		// check our stat lamp. Maybe it's blink is off and it will be reset to the default color
@@ -522,15 +519,15 @@ void BlooGPIO::sendUARTMidi(uint8_t cmd, uint8_t v1, uint8_t v2)
 	case midi::bend:
 	case midi::keyPress:
 #ifdef HAS_WIRING_PI
-	serialPutchar(uartFd, v1);
-	serialPutchar(uartFd, v2);
+		serialPutchar(uartFd, v1);
+		serialPutchar(uartFd, v2);
 #endif
 		break;
 
 	case midi::chanPress:
 	case midi::prog:
 #ifdef HAS_WIRING_PI
-	serialPutchar(uartFd, v1);
+		serialPutchar(uartFd, v1);
 #endif
 		break;
 

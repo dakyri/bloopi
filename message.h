@@ -36,21 +36,21 @@ using midi_t = mw_midi::msg;
 
 class MidiMsg : public msg_t {
 public:
-	MidiMsg() : msg_t(typ::midi) {}
+	MidiMsg(uint8_t cmd=0, uint8_t val1=0, uint8_t val2=0, uint8_t port=0) : msg_t(typ::midi), midi(cmd, val1, val2, port) {}
 	midi_t midi;
 };
 
 
 class MidiListMsg : public msg_t {
 public:
-	MidiListMsg() : msg_t(typ::midi_list) {}
+	MidiListMsg(std::vector<midi_t> midi_data={}) : msg_t(typ::midi_list), midi{midi_data} {}
 	std::vector<midi_t> midi;
 };
 
 
 class ConfigButtonMsg : public msg_t {
 public:
-	ConfigButtonMsg() : msg_t(typ::config_button), which(0) {}
+	ConfigButtonMsg(config::button cfg_data={}) : msg_t(typ::config_button), which(0), cfg{cfg_data} {}
 	uint8_t which;
 	config::button cfg;
 };
@@ -58,7 +58,7 @@ public:
 
 class ConfigPedalMsg : public msg_t {
 public:
-	ConfigPedalMsg() : msg_t(typ::config_pedal), which(0) {}
+	ConfigPedalMsg(config::pedal cfg_data={}) : msg_t(typ::config_pedal), which(0), cfg{cfg_data} {}
 	uint8_t which;
 	config::pedal cfg;
 };
@@ -66,7 +66,7 @@ public:
 
 class ConfigXlm8rMsg : public msg_t {
 public:
-	ConfigXlm8rMsg() : msg_t(typ::config_xlrm8r), which(0) {}
+	ConfigXlm8rMsg(config::xlrm8r cfg_data={}) : msg_t(typ::config_xlrm8r), which(0), cfg{cfg_data} {}
 	uint8_t which;
 	config::xlrm8r cfg;
 };
